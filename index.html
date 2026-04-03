@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fribo AI — Chat</title>
+  <meta name="description" content="Fribo AI — intelligent assistant powered by LocalAI">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Sidebar ─────────────────────────────────────── -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <div class="logo-gem">
+          <i class="ph-bold ph-sparkle"></i>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">Fribo</span><span class="logo-ai">AI</span>
+        </div>
+      </div>
+      <div class="sidebar-top-actions">
+        <button class="icon-btn" id="new-chat-btn" title="New Chat">
+          <i class="ph ph-note-pencil"></i>
+        </button>
+        <button class="icon-btn sidebar-close-btn" id="sidebar-close-btn" title="Close sidebar">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-search">
+      <i class="ph ph-magnifying-glass"></i>
+      <input id="search-input" type="text" placeholder="Search chats…" autocomplete="off">
+    </div>
+
+    <div class="sidebar-history" id="sidebar-history">
+      <div class="history-empty" id="history-empty">
+        <i class="ph ph-chat-teardrop-dots"></i>
+        <span>No conversations yet</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ───────────────────────────────────────── -->
+  <div class="main" id="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="icon-btn" id="sidebar-toggle" title="Toggle sidebar">
+        <i class="ph ph-sidebar-simple"></i>
+      </button>
+      <div class="topbar-title">
+        <div class="status-pip" id="status-pip"></div>
+        <span>Fribo AI</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="settings-btn" title="API Settings">
+          <i class="ph ph-sliders-horizontal"></i>
+        </button>
+        <button class="icon-btn danger" id="clear-chat" title="Clear conversation">
+          <i class="ph ph-trash"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat area -->
+    <div class="chat-area" id="chat-area">
+      <!-- Welcome -->
+      <div class="welcome" id="welcome">
+        <div class="orb-scene">
+          <div class="orb"></div>
+          <div class="orb-shadow"></div>
+        </div>
+        <h1 class="greeting" id="greeting-text"></h1>
+        <p class="greeting-sub">How can I help you today?</p>
+      </div>
+      <!-- Messages -->
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <!-- ── Unified Bottom Section ──────────────────── -->
+    <div class="bottom-section">
+
+      <!-- Suggestion cards -->
+      <div class="suggestion-grid" id="suggestion-cards">
+        <div class="scard" data-prompt="Explain machine learning in simple terms">
+          <div class="scard-icon"><i class="ph ph-brain"></i></div>
+          <div class="scard-body">
+            <span class="scard-title">Machine Learning</span>
+            <span class="scard-sub">Explain AI concepts simply</span>
+          </div>
+        </div>
+        <div class="scard" data-prompt="Write a Python function to reverse a string">
+          <div class="scard-icon"><i class="ph ph-code"></i></div>
+          <div class="scard-body">
+            <span class="scard-title">Code Helper</span>
+            <span class="scard-sub">Write and debug code</span>
+          </div>
+        </div>
+        <div class="scard" data-prompt="What are the top AI trends in 2025?">
+          <div class="scard-icon"><i class="ph ph-trend-up"></i></div>
+          <div class="scard-body">
+            <span class="scard-title">AI Trends</span>
+            <span class="scard-sub">Stay ahead in tech</span>
+          </div>
+        </div>
+        <div class="scard" data-prompt="Give me 5 tips to improve focus and productivity">
+          <div class="scard-icon"><i class="ph ph-lightning"></i></div>
+          <div class="scard-body">
+            <span class="scard-title">Productivity</span>
+            <span class="scard-sub">Boost your efficiency</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="input-shell">
+        <div class="input-box" id="input-box">
+          <textarea id="chat-input" placeholder="Message Fribo AI…" rows="1" autocomplete="off"></textarea>
+          <button class="send-btn" id="submit-btn" title="Send">
+            <i class="ph-bold ph-paper-plane-right"></i>
+          </button>
+          <button class="stop-btn hidden" id="stop-btn" title="Stop generating">
+            <i class="ph-bold ph-stop"></i>
+          </button>
+        </div>
+        <p class="input-hint">Fribo AI can make mistakes. Verify important information.</p>
+      </div>
+
+    </div>
+    <!-- ── End Bottom Section ─────────────────────── -->
+
+  </div>
+</div>
+
+<!-- ── Settings Modal ──────────────────────────────── -->
+<div class="modal-bg hidden" id="settings-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span><i class="ph ph-sliders-horizontal"></i> API Settings</span>
+      <button class="icon-btn" id="modal-close"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="field-label">Endpoint URL</label>
+      <input id="api-url-input" class="field-input" type="url"
+             placeholder="https://your-api.ngrok-free.app/v1/chat/completions">
+      <p class="field-hint">Update this whenever your ngrok tunnel restarts.</p>
+      <div class="modal-status hidden" id="modal-status"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="test-connection-btn">
+          <i class="ph ph-plugs-connected"></i> Test Connection
+        </button>
+        <button class="btn-primary" id="save-settings-btn">
+          <i class="ph ph-floppy-disk"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
