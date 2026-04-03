@@ -229,15 +229,20 @@ function scrollBottom() {
 }
 
 // ── Slim History ── DIUBAH ────────────────────────────────────────
-// Hanya kirim 3 turn terakhir (6 pesan) agar muat di N_CTX=512 token.
-// Setiap pesan juga dipotong maksimal 400 karakter agar token tidak meluap.
+// Hanya kirim 3 turn terakhir (6 pesan) untuk hemat memori token.
+// Pesan riwayat dipotong 1000 karakter, tapi pesan terakhir (request user) 
+// diberi limit lebih besar (2500 karakter) agar pertanyaannya utuh.
 function slimHistory() {
   const [sys, ...rest] = messageHistory;
   const slim = rest.slice(-6);
-  const trimmed = slim.map(m => ({
-    role: m.role,
-    content: m.content.length > 400 ? m.content.slice(0, 400) + '…' : m.content
-  }));
+  const trimmed = slim.map((m, i) => {
+    const isLast = (i === slim.length - 1);
+    const maxLen = isLast ? 2500 : 1000;
+    return {
+      role: m.role,
+      content: m.content.length > maxLen ? m.content.slice(0, maxLen) + '…' : m.content
+    };
+  });
   return [sys, ...trimmed];
 }
 
@@ -569,6 +574,8 @@ async function sendMessage(isRegeneration = false) {
     chatInput.disabled = false;
     submitBtn.classList.remove('hidden');
     stopBtn.classList.add('hidden');
-    chatInput.focus();
+    if (window.innerWidth > 700) {
+      chatInput.focus();
+    }
   }
 }
